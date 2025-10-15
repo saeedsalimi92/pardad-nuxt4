@@ -1,121 +1,106 @@
 <template>
   <div class="relative dir-rtl">
-
+    <!-- Top Menu -->
     <MenuLogo />
     <Menu />
-    <MainLoading ref="mainLoading" />
-    <!-- ✅ نوع لودینگ با استور کنترل می‌شود -->
-<!--    <template v-if="getLoadingType === 'main'">
-      <MainLoading ref="mainLoading" />
-    </template>
 
-    <template v-else>
-      <ClientOnly>
-      <CommonLineWrapper ref="pageLine" />
-      </ClientOnly>
-    </template>-->
+    <!-- ✅ Loader runs only in the browser -->
+    <ClientOnly>
+      <MainLoading
+          v-if="showLoader"
+          ref="mainLoading"
+          @done="onLoadingDone"
+      />
+    </ClientOnly>
 
-    <NuxtLayout>
-      <NuxtPage />
-    </NuxtLayout>
-
+    <!-- ✅ Page stays hidden until loading animation is done -->
+    <div
+        :class="{
+        'opacity-0 pointer-events-none': showLoader,
+        'opacity-100 pointer-events-auto': !showLoader
+      }"
+        class="transition-opacity duration-700"
+    >
+      <NuxtLayout>
+        <NuxtPage />
+      </NuxtLayout>
+    </div>
   </div>
 </template>
-<script setup>
 
-import { useHead, onMounted } from '#imports';
-import {setAppLocale} from "~/services/preference";
+<script setup>
+import { ref, watch, onMounted, nextTick } from 'vue'
+import { useHead, useRoute } from '#imports'
+import {setAppLocale} from '~/services/preference'
+
 const route = useRoute()
 const store = useGlobalStore()
-const { getLoadingType } = storeToRefs(store)
+const {getLoadingType} = storeToRefs(store)
 
-// تابع برای تشخیص تم مرورگر و تغییر favicon
+const showLoader = ref(true)
+const pageLine = ref(null)
+
+/* ✅ Handle favicon based on browser theme */
 const updateFavicon = () => {
-  const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const favicon = !isDarkMode ? '/dark-favicon.ico' : '/light-favicon.ico';
-
+  if (!process.client) return
+  const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+  const favicon = isDarkMode ? '/light-favicon.ico' : '/dark-favicon.ico'
 
   useHead({
     link: [
-      {
-        rel: 'icon',
-        type: 'image/x-icon',
-        href: favicon,
-      },
-    ],
-  });
-};
-const pageLine = ref(null)
+      {rel: 'icon', type: 'image/x-icon', href: favicon}
+    ]
+  })
+}
 
+/* ✅ Watch route changes for line loading */
 watch(
     () => [route.fullPath, getLoadingType.value],
     async ([path, type]) => {
       if (type === 'line') {
-        // چون <CommonLineWrapper> ممکنه هنوز mount نشده باشه:
         await nextTick()
-
-        if (pageLine.value && typeof pageLine.value.init === 'function') {
+        if (pageLine.value?.init) {
           try {
             pageLine.value.init()
-            console.log(`✅ CommonLineWrapper init برای مسیر ${path} اجرا شد`)
+            console.log(`✅ CommonLineWrapper init executed for ${path}`)
           } catch (err) {
-            console.warn('⚠️ خطا هنگام اجرای init در CommonLineWrapper', err)
+            console.warn('⚠️ Error in CommonLineWrapper init', err)
           }
         } else {
-          console.warn('⚠️ CommonLineWrapper هنوز mount نشده')
+          console.warn('⚠️ CommonLineWrapper not mounted yet')
         }
       }
     },
-    { immediate: true }
+    {immediate: true}
 )
 
+/* ✅ When loading animation finishes */
+const onLoadingDone = () => {
+  showLoader.value = false
+}
+
+/* ✅ Mounted logic (runs only in browser) */
 onMounted(() => {
-  // فقط وقتی کامپوننت line نمایش داده میشه، init بزن
-  if (getLoadingType.value === 'line') {
-    nextTick(() => {
-      if (pageLine.value?.init) pageLine.value.init()
-    })
+  if (process.client) {
+    const langValue = localStorage.getItem('lang') || 'fa'
+    store.setLocale(langValue)
+    setAppLocale(langValue)
+
+    // prevent double-tap zoom on mobile
+    const preventDoubleClickZoom = (e) => e.preventDefault()
+    document.addEventListener('dblclick', preventDoubleClickZoom, {passive: false})
+
+    updateFavicon()
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateFavicon)
   }
 })
-
-// هنگام mount شدن کامپوننت، favicon را بررسی و تنظیم کنید
-onMounted(() => {
-
-  if (process.client) {
-
-    let lang_value = localStorage.getItem('lang') || 'fa';
-    store.setLocale(lang_value);
-    setAppLocale(lang_value);
-
-
-
-/* setTimeout(()=>{
-   pageLine.value.timeScale(1);
-   setTimeout(()=>{
-     pageLine.value.start()
-   },100)
-
- },100)*/
-  }
-
-  const preventDoubleClickZoom = (e) => {
-    e.preventDefault();
-  };
-
-  document.addEventListener('dblclick', preventDoubleClickZoom, { passive: false });
-/*  document.documentElement.style.touchAction = 'manipulation';*/
- /* document.documentElement.style.userSelect = 'none';*/
-  updateFavicon();
-
-  // گوش دادن به تغییرات تم مرورگر
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateFavicon);
-});
 </script>
+
 <style>
 html, body {
- /* touch-action: manipulation;
+  /* Optional: disable unwanted gestures or selections */
+  /* touch-action: manipulation;
   -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  user-select: none;*/
+  user-select: none; */
 }
 </style>
