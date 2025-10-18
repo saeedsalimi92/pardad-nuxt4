@@ -22,8 +22,6 @@
   </div>
 </template>
 <script setup>
-
-import { useHead, onMounted } from '#imports';
 import {setAppLocale} from "~/services/preference";
 const route = useRoute()
 const store = useGlobalStore()
@@ -31,20 +29,17 @@ const { getLoadingType } = storeToRefs(store)
 
 // تابع برای تشخیص تم مرورگر و تغییر favicon
 const updateFavicon = () => {
-  const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const favicon = !isDarkMode ? '/dark-favicon.ico' : '/light-favicon.ico';
-
+  if (!process.client) return
+  const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+  const favicon = isDarkMode ? '/dark-favicon.ico' : '/light-favicon.ico'
 
   useHead({
     link: [
-      {
-        rel: 'icon',
-        type: 'image/x-icon',
-        href: favicon,
-      },
+      { rel: 'icon', type: 'image/x-icon', href: favicon },
     ],
-  });
-};
+  })
+}
+
 const pageLine = ref(null)
 
 watch(
@@ -69,6 +64,7 @@ watch(
     { immediate: true }
 )
 
+// هنگام mount شدن کامپوننت، favicon را بررسی و تنظیم کنید
 onMounted(() => {
   // فقط وقتی کامپوننت line نمایش داده میشه، init بزن
   if (getLoadingType.value === 'line') {
@@ -76,10 +72,6 @@ onMounted(() => {
       if (pageLine.value?.init) pageLine.value.init()
     })
   }
-})
-
-// هنگام mount شدن کامپوننت، favicon را بررسی و تنظیم کنید
-onMounted(() => {
 
   if (process.client) {
 
