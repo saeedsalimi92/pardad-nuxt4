@@ -1,7 +1,10 @@
 <template>
 
-<div v-if="getShowContent">
-  <section ref="section" v-show="showSection" class="" data-page="home" style="">
+<div  :class="{ 'opacity-0 pointer-events-none': !getShowContent }"
+      style="transition: opacity .5s;">
+  <section ref="section"
+           v-show="showSection"
+           data-page="home">
 
     <!--      <canvas class="home__background"></canvas>-->
 
@@ -34,29 +37,25 @@
       <div
           class="lg:h-[calc(100dvh-155px)] h-full lg:overflow-hidden overflow-y-scroll overscroll-none lg:mt-32 mt-4">
 
-        <HomePage @next="nextSlide" v-if="showHome" ref="Home" :class="{'will-change-transform': moving}"/>
-        <!-- <FirstPage @next="nextSlide" @prev="prevSlide" v-if="showFirst" ref="First"/>
-          <SecondPage @next="nextSlide" @prev="prevSlide" v-if="showSecond" ref="Second"/>
-          <ThirdPage @next="nextSlide" @prev="prevSlide" v-if="showThird" ref="Third"/>
-          <FourthPage @prev="prevSlide"   v-if="showFourth" ref="Fourth"/> -->
+        <HomePage @next="nextSlide" v-show="showHome" ref="Home" :class="{'will-change-transform': moving}"/>
 
         <Transition name="fade">
-          <FirstPage @next="nextSlide" @prev="prevSlide" v-if="showFirst" ref="First"
+          <FirstPage @next="nextSlide" @prev="prevSlide" v-show="showFirst" ref="First"
                      :class="{'will-change-transform': moving}"/>
         </Transition>
 
         <Transition name="fade">
-          <SecondPage @next="nextSlide" @prev="prevSlide" v-if="showSecond" ref="Second"
+          <SecondPage @next="nextSlide" @prev="prevSlide" v-show="showSecond" ref="Second"
                       :class="{'will-change-transform': moving}"/>
         </Transition>
 
         <Transition name="fade">
-          <ThirdPage @next="nextSlide" @prev="prevSlide" v-if="showThird" ref="Third"
+          <ThirdPage @next="nextSlide" @prev="prevSlide" v-show="showThird" ref="Third"
                      :class="{'will-change-transform': moving}"/>
         </Transition>
 
         <Transition name="fade">
-          <FourthPage @prev="prevSlide" @next="nextSlide" v-if="showFourth" ref="Fourth"
+          <FourthPage @prev="prevSlide" @next="nextSlide" v-show="showFourth" ref="Fourth"
                       :class="{'will-change-transform': moving}"/>
         </Transition>
 
@@ -119,13 +118,11 @@ const bgLine = ref(null)
 const showSection = ref(true)
 const hoverLine = ref(null)
 
-
-watch(getLoading, (value) => {
-  if (!value) {
-    initPage()
-  }
-})
-
+if (process.client) {
+  watch(getLoading, (value) => {
+    if (!value) initPage()
+  })
+}
 
 useHead({
   title: 'گروه پرداد',
@@ -707,6 +704,7 @@ const handleKey = (event) => {
   if (event.keyCode === 38) triggerOnce(prevSlide); // ArrowUp
 };
 onMounted(() => {
+  if (!process.client) return;
 
   window.addEventListener('touchstart', onTouchStart, { passive: true });
   window.addEventListener('touchmove', onTouchMove, { passive: true });

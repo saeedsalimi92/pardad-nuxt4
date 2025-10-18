@@ -3,7 +3,8 @@
 
 
   <div ref="section"
-       v-show="showSection"
+       :class="{ 'opacity-0 pointer-events-none': !showSection }"
+       style="transition: opacity .5s;"
        class="w-full h-full flex justify-center items-center">
 
     <div class="w-full grid grid-cols-12 relative h-max lg:pr-20">

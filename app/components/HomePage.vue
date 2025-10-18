@@ -1,7 +1,9 @@
 <template>
 
 
-  <div ref="section" v-if="showSection"
+  <div :class="{ 'opacity-0 pointer-events-none': !showSection }"
+       style="transition: opacity .5s;"
+       ref="section"
        class="w-full h-full grid grid-cols-12 relative">
 
     <div class="lg:col-span-7 col-span-12 relative lg:order-1 order-2">
@@ -52,15 +54,13 @@
         </div>
 
 
-
-
         <div class="absolute h-full hidden sm:block xl:top-20 top-0"
              :class="(locale === 'en') ? 'lg:-left-[70px]' : 'lg:-left-[130px]'">
 
           <div class="relative w-px h-2/5 " ref="loadingLineWrap">
             <div class="w-px relative " ref="loadingLine">
               <div class="absolute left-0 right-0 h-full  bottom-0 bg-[#e1e1e1]" ref="loadingBackground"></div>
-              <div class="absolute left-0 right-0 h-full  bottom-0 bg-[#363d46]"  ref="loadingProgress"></div>
+              <div class="absolute left-0 right-0 h-full  bottom-0 bg-[#363d46]" ref="loadingProgress"></div>
             </div>
           </div>
         </div>
@@ -280,16 +280,16 @@ const createScrollTextAnimation = () => {
 }
 
 
-const seperatedLineAnimationFunc = (val)=>{
+const seperatedLineAnimationFunc = (val) => {
 
-return
+  return
 
   seperatedTimeLine.value = new TimelineLite({})
 
 
   // همیشه از پایین شروع کنن
   seperatedTimeLine.value.set([seperatedLine.value, seperatedLineChild.value], {
-    transformOrigin: locale.value === 'en' ? 'left center'  :  "right center",
+    transformOrigin: locale.value === 'en' ? 'left center' : "right center",
     scaleX: 0
   })
 
@@ -297,36 +297,36 @@ return
   seperatedTimeLine.value.to(seperatedLine.value, 0.8, {
     scaleX: 1,
     ease: Power3.easeOut,
-    delay:0.4
+    delay: 0.4
   })
   seperatedTimeLine.value.to(seperatedLineChild.value, 0.7, {
     scaleX: 1, // مثلاً 0.7 = 70٪
     ease: Power2.easeInOut
-  }, )
+  },)
   seperatedTimeLine.value.to(seperatedLineChild.value, 0.7, {
-    transformOrigin: locale.value === 'en' ? 'right center'  :  "left center",
+    transformOrigin: locale.value === 'en' ? 'right center' : "left center",
     scaleX: 0.1, // مثلاً 0.7 = 70٪
     ease: Power2.easeInOut
   },)
 }
-const seperatedLineAnimationFuncReverse = ()=>{
+const seperatedLineAnimationFuncReverse = () => {
   return
   seperatedTimeLine.value = new TimelineLite({})
 
 
   seperatedTimeLine.value.to(seperatedLineChild.value, 0.3, {
-    transformOrigin: locale.value === 'en' ? 'right center'  :  "left center",
+    transformOrigin: locale.value === 'en' ? 'right center' : "left center",
     scaleX: 1,
     ease: Power3.easeOut
   })
 
   seperatedTimeLine.value.to(seperatedLineChild.value, 0.2, {
-    transformOrigin: locale.value === 'en' ? 'left center'  :  "right center",
+    transformOrigin: locale.value === 'en' ? 'left center' : "right center",
     scaleX: 0,
     ease: Power3.easeOut
   })
   seperatedTimeLine.value.to(seperatedLine.value, 0.1, {
-    transformOrigin: locale.value === 'en' ? 'left center'  :  "right center",
+    transformOrigin: locale.value === 'en' ? 'left center' : "right center",
     scaleX: 0,
     ease: Power3.easeOut
   })
@@ -364,8 +364,8 @@ const startAnimation = () => {
   scrollCTA_timeline.value.timeScale(1);
   handleAnimation("play", scrollCTA_timeline.value);
   createPageLineAnimation()
- /* lineTimeline.value.timeScale(1);
-  handleAnimation("play", lineTimeline.value);*/
+  /* lineTimeline.value.timeScale(1);
+   handleAnimation("play", lineTimeline.value);*/
   animateSubLine()
 
 
@@ -378,8 +378,8 @@ const closeAnimation = () => {
   animateSubLineReverse()
 
   seperatedLineAnimationFuncReverse()
- /* lineTimeline.value.timeScale(2);
-  handleAnimation("reverse", lineTimeline.value);*/
+  /* lineTimeline.value.timeScale(2);
+   handleAnimation("reverse", lineTimeline.value);*/
 
 
 }
@@ -395,12 +395,9 @@ const restartAnimation = () => {
 const killAnimation = () => {
   handleAnimation("kill", contentTimeLine.value);
   handleAnimation("kill", scrollCTA_timeline.value);
-/*  handleAnimation("kill", lineTimeline.value);*/
+  /*  handleAnimation("kill", lineTimeline.value);*/
 
 }
-
-
-
 
 
 const progress = ref(0)
@@ -422,7 +419,6 @@ const loadingLine = ref(null)
 const loadingBackground = ref(null)
 
 const loadingProgress = ref(null)
-
 
 
 const animateSubLine = (speed = defaultSpeedSubLine.value) => {
@@ -488,13 +484,11 @@ const animateSubLineReverse = (speed = defaultSpeedSubLine.value) => {
 }
 
 
-
-
 const animateFinish = (speed) => {
   const tl = new TimelineLite()
 
   // مبدا همه scale ها از پایین باشه
-  tl.set([loadingProgress.value, loadingBackground.value], { transformOrigin: "top center" })
+  tl.set([loadingProgress.value, loadingBackground.value], {transformOrigin: "top center"})
 
   // مرحله ۱: جمع شدن از پایین
   tl.to([loadingProgress.value, loadingBackground.value], speed, {
@@ -509,7 +503,6 @@ const animateFinish = (speed) => {
     onComplete: onAnimateFinishComplete
   }, `-=${speed / 2}`)
 }
-
 
 
 const animateOnLine = (step = 0.65, speed = 2) => {
@@ -533,9 +526,7 @@ const animateOnLineFull = (duration = 1, speed = 0.5) => {
 const onAnimateFinishComplete = () => {
 
 
-
-
-  if(loadingLineWrap.value && loadingLineWrap.value.style){
+  if (loadingLineWrap.value && loadingLineWrap.value.style) {
     loadingLineWrap.value.style.display = "flex";
     loadingLineWrap.value.style.visibility = "hidden";
 

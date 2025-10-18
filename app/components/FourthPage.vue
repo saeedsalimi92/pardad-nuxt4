@@ -2,7 +2,8 @@
 
 
   <div ref="section"
-       v-show="showSection"
+       :class="{ 'opacity-0 pointer-events-none': !showSection }"
+       style="transition: opacity .5s;"
        class=" w-full h-full mt-12 md:mt-0 2xl:mt-12">
     <div class="w-full grid grid-cols-12 relative">
       <div

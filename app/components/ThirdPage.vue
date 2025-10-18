@@ -1,7 +1,9 @@
 <template>
 
 
-  <div ref="section" v-show="showSection"
+  <div ref="section"
+       :class="{ 'opacity-0 pointer-events-none': !showSection }"
+       style="transition: opacity .5s;"
        class="w-full h-full flex justify-center items-center">
     <div class="w-full grid grid-cols-12 relative h-max lg:pr-20">
       <div class="lg:col-span-7 col-span-12 relative lg:w-[75%] mx-auto h-full">
